@@ -79,11 +79,11 @@ SLI — индикатор качества обслуживания. Конкр
 
 ## Решение - 6
 
-Prometheus - Pull
-TICK - Гибридная
-Zabbix - Гибридная
-VictoriaMetrics - Гибридная
-Nagios - Pull
+    Prometheus - Pull
+    TICK - Гибридная
+    Zabbix - Гибридная
+    VictoriaMetrics - Гибридная
+    Nagios - Pull
 
 #
 7. Склонируйте себе [репозиторий](https://github.com/influxdata/sandbox/tree/master) и запустите TICK-стэк, 
@@ -96,6 +96,24 @@ P.S.: если при запуске некоторые контейнеры б�
 
 ## Решение - 7
 
+Склонировал репозиторий, докер компоуз завершился с ошибкой:
+
+![alt text](https://github.com/artmur1/20-01-monitoring-systems-hw/blob/main/img/20-01-01-01-hw.png)
+
+Экспортировал переменные контейнеров и общуюпеременную TYPE:
+
+![alt text](https://github.com/artmur1/20-01-monitoring-systems-hw/blob/main/img/20-01-01-02-hw.png)
+
+После этого сборка завершилась успешно: 
+
+![alt text](https://github.com/artmur1/20-01-monitoring-systems-hw/blob/main/img/20-01-01-03-hw.png)
+
+Но два контейнера завершились с ошибкой:
+
+![alt text](https://github.com/artmur1/20-01-monitoring-systems-hw/blob/main/img/20-01-01-04-hw.png)
+
+Смотрю логи обоих контейнеров, и вижу, что не хватает прав на чтение каталогов. А также не нравится версия:
+
     # docker logs 0f9351f258b0
     time="2024-07-31T13:27:36Z" level=error msg="Unable to create bolt clientUnable to open boltdb; is there a chronograf already running?  open /var/lib/chronograf/chronograf-v1.db:        permission denied"
 
@@ -107,10 +125,28 @@ P.S.: если при запуске некоторые контейнеры б�
     ts=2024-07-31T13:27:25.147Z lvl=error msg="encountered error" service=run err="create server: failed to save cluster ID: open /var/lib/kapacitor/cluster.id: permission denied"
     run: create server: failed to save cluster ID: open /var/lib/kapacitor/cluster.id: permission denied
 
+![alt text](https://github.com/artmur1/20-01-monitoring-systems-hw/blob/main/img/20-01-01-05-hw.png)
+
+Поставил Z в конце вольюмов, как рекомендуется в задании:
+
     - ./kapacitor/data/:/var/lib/kapacitor:Z
     - ./chronograf/data/:/var/lib/chronograf/:Z
 
-![alt text]()
+После гугления поставил версию influxdb:1.8:
+
+![alt text](https://github.com/artmur1/20-01-monitoring-systems-hw/blob/main/img/20-01-01-06-hw.png)
+
+А также задал полные права на весь каталог sandbox со всеми вложенными файлами:
+
+![alt text](https://github.com/artmur1/20-01-monitoring-systems-hw/blob/main/img/20-01-01-07-hw.png)
+
+После этих действий контейнеры запустились и работают стабильно:
+
+![alt text](https://github.com/artmur1/20-01-monitoring-systems-hw/blob/main/img/20-01-01-08-hw.png)
+
+Скриншот веб-интерфейса ПО chronograf:
+
+![alt text](https://github.com/artmur1/20-01-monitoring-systems-hw/blob/main/img/20-01-01-09-hw.png)
 
 #
 8. Перейдите в веб-интерфейс Chronograf (http://localhost:8888) и откройте вкладку Data explorer.
@@ -123,6 +159,10 @@ P.S.: если при запуске некоторые контейнеры б�
 Для выполнения задания приведите скриншот с отображением метрик утилизации cpu из веб-интерфейса.
 
 ## Решение - 8
+
+Скриншот с отображением метрик утилизации cpu из веб-интерфейса:
+
+![alt text](https://github.com/artmur1/20-01-monitoring-systems-hw/blob/main/img/20-01-01-10-hw.png)
 
 #
 9. Изучите список [telegraf inputs](https://github.com/influxdata/telegraf/tree/master/plugins/inputs). 
@@ -156,7 +196,19 @@ P.S.: если при запуске некоторые контейнеры б�
 
 ## Решение - 9
 
+Конфиг телеграф:
 
+![alt text](https://github.com/artmur1/20-01-monitoring-systems-hw/blob/main/img/20-01-01-14-hw.png)
+
+Внес изменеия в докер компоуз - раздел телеграф:
+
+![alt text](https://github.com/artmur1/20-01-monitoring-systems-hw/blob/main/img/20-01-01-13-hw.png)
+
+Удалил все контейнера, сборки, вольюмы, сетевые интерфейсы и заново запустил сборку. В `measurments` появились метрики docker:
+
+![alt text](https://github.com/artmur1/20-01-monitoring-systems-hw/blob/main/img/20-01-01-11-hw.png)
+
+![alt text](https://github.com/artmur1/20-01-monitoring-systems-hw/blob/main/img/20-01-01-12-hw.png)
 
 ## Дополнительное задание (со звездочкой*) - необязательно к выполнению
 
